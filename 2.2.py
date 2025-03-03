@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import imageio
 
 def cluster_in_neigborhood(N, x, y, grid):
     if x==0:
@@ -14,7 +15,7 @@ def cluster_in_neigborhood(N, x, y, grid):
             return True
     return False
 
-def random_walk(N, max_iter = 1000):
+def random_walk(N, max_iter = 10):
     grid = np.zeros((N+1,N+1))
     init = np.random.choice(N+1)
     grid[N, init] = 1
@@ -94,11 +95,43 @@ def plot_walker(route):
     # plt.grid()
     plt.show()
 
+def create_gif_rw(growth_evolution, route ,filename='random_walker.gif', interval=100):
+    """
+    Create a GIF of the cluster spreading over time.
+
+    Parameters:
+    growth_evolution (dict): Dictionary containing the cluster grid at each timestep.
+    route (dict): 
+
+    filename (str): Name of the output GIF file.
+    interval (int): Time interval between frames in milliseconds.
+    """
+    frames = []
+    for timestep in sorted(growth_evolution.keys()):
+        fig, ax = plt.subplots()
+        ax.imshow(growth_evolution[timestep], cmap='Greys', interpolation='nearest')
+        # ax.imshow(route[timestep], cmap='reds')
+        ax.set_title(f'Timestep {timestep}')
+        ax.axis('off')
+        
+        # Save the current frame
+        fig.canvas.draw()
+        image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+        image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        frames.append(image)
+        plt.close(fig)
+    
+    # Create the GIF
+    imageio.mimsave(filename, frames, duration=interval / 1000)
+
+
 N = 5
 grids, route = random_walk(N)
 
-plot_walker(route)
+# plot_walker(route)
 # rw2 = random_walk(N)
 
 # plot_grid(rw1)
 # plot_grid(rw2)
+
+create_gif_rw(grids, route)
