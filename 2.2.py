@@ -15,19 +15,19 @@ def cluster_in_neigborhood(N, x, y, grid):
             return True
     return False
 
-def random_walk(N, max_iter = 10):
+def random_walk(N, p=0.7, max_iter = 1000000):
     grid = np.zeros((N+1,N+1))
     init = np.random.choice(N+1)
     grid[N, init] = 1
 
-    all_grids = [grid]
+    cluster_growth = []
+    walkers = []
 
     pos_y = 0
     pos_x = np.random.choice(N+1)
 
-    walkers = [(pos_x,pos_y)]
-    for i in range(max_iter):
-        # dir = np.random.choice([(0,1), (0,-1), (1,0), (-1,0)])
+    walkers.append((pos_x,pos_y))
+    for i in range(1,max_iter):
         directions = [np.array([-1, 0]), 
           np.array([0, 1]),
           np.array([1, 0]),
@@ -42,15 +42,21 @@ def random_walk(N, max_iter = 10):
         walkers.append((new_pos_x,new_pos_y))
         
         if cluster_in_neigborhood(N, new_pos_x, new_pos_y, grid):
-            grid[new_pos_y, new_pos_x] = 1
+            if random.uniform(0,1) < p: 
+                grid[new_pos_y, new_pos_x] = 1
+            else:
+                new_directions = [d for d in directions if not np.array_equal(d, dir)]
+                new_dir = random.choice(new_directions)
+                pos_x, pos_y = (new_pos_x + new_dir[0]) % N, new_pos_y + new_dir[1]
+                continue
 
-        all_grids.append(grid)
+        cluster_growth.append(grid)
 
         if np.min(grid) == 1:
-            return all_grids, walkers
+            return cluster_growth, walkers
         pos_x = new_pos_x
         pos_y = new_pos_y
-    return all_grids, walkers 
+    return cluster_growth, walkers 
 
 
 def plot_final_grid(grid):
@@ -69,7 +75,7 @@ def plot_final_grid(grid):
     for x in range(cols):
         for y in range(rows):
             if grid[y, x] == 1: 
-                ax.plot(x, rows - y , color='black', marker='o', markersize=8)
+                ax.plot(x, rows - y , color='black', marker='o', markersize=100/N)
 
     # Formatting
     ax.set_xlim(-1, cols+1)
@@ -95,24 +101,52 @@ def plot_walker(route):
     # plt.grid()
     plt.show()
 
-def create_gif_rw(growth_evolution, route ,filename='random_walker.gif', interval=100):
+def plot_ps(ps):
+    total_grid_sizes = []
+    for p in ps:
+        grid_sizes = []
+        for i in range(10):
+            cluster_growth, route = random_walk(50, p)
+            final_grid = cluster_growth[-1]
+            unique, counts = np.unique(final_grid, return_counts=True)
+            grid_sizes.append(counts[1])
+        print("Done with", p)
+        total_grid_sizes.append(np.mean(grid_sizes))
+    print(total_grid_sizes)
+    plt.plot(ps,total_grid_sizes)
+    plt.xlabel("Sticking probability $p_s$")
+    plt.ylabel("Mean clustersize")
+    plt.show()
+
+def create_gif_rw(grids, route ,N ,filename='random_walker_5.gif', interval=100):
     """
-    Create a GIF of the cluster spreading over time.
+    Create a GIF of the cluster spreading and the route of the walker over time.
 
     Parameters:
-    growth_evolution (dict): Dictionary containing the cluster grid at each timestep.
-    route (dict): 
-
+    grid (dict): Dictionary containing the total grid (NxN) at each timestep.
+    route (dict): Dictionary containing the position of the walker at each timestep.
+    N (int): Grid size
     filename (str): Name of the output GIF file.
     interval (int): Time interval between frames in milliseconds.
     """
     frames = []
-    for timestep in sorted(growth_evolution.keys()):
-        fig, ax = plt.subplots()
-        ax.imshow(growth_evolution[timestep], cmap='Greys', interpolation='nearest')
-        # ax.imshow(route[timestep], cmap='reds')
-        ax.set_title(f'Timestep {timestep}')
-        ax.axis('off')
+    
+    for timestep in sorted(grids.keys()):
+
+        walker_pos = route.get(timestep, None)
+
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.imshow(grids[timestep], cmap='gray_r', origin='lower')
+        
+        if walker_pos:
+            ax.scatter(walker_pos[1], walker_pos[0], color='red', s=100, label='Walker')
+        
+        ax.set_title(f'Timestep: {timestep}')
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        plt.legend()
+        plt.tight_layout()
         
         # Save the current frame
         fig.canvas.draw()
@@ -125,13 +159,10 @@ def create_gif_rw(growth_evolution, route ,filename='random_walker.gif', interva
     imageio.mimsave(filename, frames, duration=interval / 1000)
 
 
-N = 5
-grids, route = random_walk(N)
 
-# plot_walker(route)
-# rw2 = random_walk(N)
+N = 50
+ps = [0.5,0.6,0.7,0.8,0.9,1]
 
-# plot_grid(rw1)
-# plot_grid(rw2)
-
-create_gif_rw(grids, route)
+cluster_growth, route = random_walk(N, 0.5)
+final_grid = cluster_growth[-1]
+plot_final_grid(final_grid)
