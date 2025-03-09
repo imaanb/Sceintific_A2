@@ -151,34 +151,3 @@ def fractal_dimension(grid):
     coeffs = np.polyfit(log_sizes, log_counts, 1)
     D_box = - coeffs[0]
     return D_box
-
-
-
-N = 100
-# plot_final_grid(random_walk(N,0.5),N)
-# plt.show()
-
-p_values = np.arange(0.01, 1.01, 0.01)
-num_p = len(p_values)
-iter = 1
-fract = np.zeros(num_p)
-j = 0
-for p in p_values:
-    fract_p = np.zeros(iter)
-    for i in range(iter):
-        grid = random_walk(N,p)
-        fract_p[i] = fractal_dimension(grid)
-    fract[j] = np.mean(fract_p)
-    j+=1
-    print("done with", p)
-
-plt.plot(p_values, fract)
-plt.xlabel("$p_s$", fontsize=20)
-plt.ylabel("Fractal dimension", fontsize=20)
-plt.grid(True)
-plt.show()
-
-# p_values = [0.25,0.5,0.75,1]
-# plot_six_subplots(N, p_values)
-
-
