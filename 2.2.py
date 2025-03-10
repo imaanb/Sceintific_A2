@@ -65,28 +65,6 @@ def random_walk(N, p, max_iter = 1000000000):
     return grid.copy() #cluster_growth #, walkers 
 
 
-# def plot_final_grid(grid, N, ax = None):
-#     rows, cols = grid.shape
-
-#     if ax is None:
-#         fig, ax = plt.subplots(figsize=(6, 6))
-
-#     # Plot filled circles at intersections where grid == 1
-#     for x in range(cols):
-#         for y in range(rows):
-#             if grid[y, x] == 1: 
-#                 ax.plot(x, rows - y , color='black', marker='o', markersize=150/N)
-
-#     # Formatting
-#     ax.set_xlim(-1, cols+1)
-#     ax.set_ylim(-1, rows+1)
-#     ax.set_xticks([])
-#     ax.set_yticks([])
-#     ax.grid(False)
-#     ax.set_frame_on(False)
-
-#     # plt.show()
-
 def plot_final_grid(grid, N, ax=None):
     rows, cols = grid.shape
 
@@ -104,7 +82,7 @@ def plot_final_grid(grid, N, ax=None):
     ax.grid(False)
     ax.set_frame_on(False)
 
-def plot_six_subplots(N, p_values):
+def plot_subplots(N, p_values):
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))  # 2 rows, 2 columns
     axes = axes.flatten()
     

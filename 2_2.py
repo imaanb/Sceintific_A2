@@ -65,28 +65,6 @@ def random_walk(N, p, max_iter = 1000000000):
     return grid.copy() #cluster_growth #, walkers 
 
 
-# def plot_final_grid(grid, N, ax = None):
-#     rows, cols = grid.shape
-
-#     if ax is None:
-#         fig, ax = plt.subplots(figsize=(6, 6))
-
-#     # Plot filled circles at intersections where grid == 1
-#     for x in range(cols):
-#         for y in range(rows):
-#             if grid[y, x] == 1: 
-#                 ax.plot(x, rows - y , color='black', marker='o', markersize=150/N)
-
-#     # Formatting
-#     ax.set_xlim(-1, cols+1)
-#     ax.set_ylim(-1, rows+1)
-#     ax.set_xticks([])
-#     ax.set_yticks([])
-#     ax.grid(False)
-#     ax.set_frame_on(False)
-
-#     # plt.show()
-
 def plot_final_grid(grid, N, ax=None):
     rows, cols = grid.shape
 
@@ -104,7 +82,7 @@ def plot_final_grid(grid, N, ax=None):
     ax.grid(False)
     ax.set_frame_on(False)
 
-def plot_six_subplots(N, p_values):
+def plot_subplots(N, p_values):
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))  # 2 rows, 2 columns
     axes = axes.flatten()
     
@@ -153,32 +131,5 @@ def fractal_dimension(grid):
     return D_box
 
 
-
-N = 100
-# plot_final_grid(random_walk(N,0.5),N)
-# plt.show()
-
-p_values = np.arange(0.01, 1.01, 0.01)
-num_p = len(p_values)
-iter = 1
-fract = np.zeros(num_p)
-j = 0
-for p in p_values:
-    fract_p = np.zeros(iter)
-    for i in range(iter):
-        grid = random_walk(N,p)
-        fract_p[i] = fractal_dimension(grid)
-    fract[j] = np.mean(fract_p)
-    j+=1
-    print("done with", p)
-
-plt.plot(p_values, fract)
-plt.xlabel("$p_s$", fontsize=20)
-plt.ylabel("Fractal dimension", fontsize=20)
-plt.grid(True)
-plt.show()
-
-# p_values = [0.25,0.5,0.75,1]
-# plot_six_subplots(N, p_values)
 
 
