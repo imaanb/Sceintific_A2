@@ -12,7 +12,7 @@ import numpy as np
 import pickle
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
-
+import os
 
 ### ANALYTIC SOLUTION FOR COMPARISON
 def analytic_solution(x, t, D, num_terms):
@@ -195,6 +195,8 @@ def main():
         
 
     # Save the results to a pickle file
+    os.makedirs('../runs', exist_ok=True)
+
     with open('../runs/final_earlystop', 'wb') as f:
         pickle.dump(fractal_dims, f)
 
